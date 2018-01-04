@@ -76,7 +76,7 @@ disklabel64 -B ${disk}s1
 disklabel64 ${disk}s1 > /tmp/label
 cat << EOF >> /tmp/label
   a:     *       0       4.2BSD
-  b:     768m    *       swap
+  b:     1500m   *       swap
 EOF
 disklabel -R ${disk}s1 /tmp/label
 
@@ -211,7 +211,7 @@ sed -i -e 's/.*%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /
 
 echo -e "\nInstalling packages..."
 echo "________________________________________________________________________"
-chroot /mnt pkg install -y gmake bash gettext llvm38 clang38 cmake ninja
+chroot /mnt pkg install -y gmake bash gettext llvm38 clang38 cmake ninja libconfig
 
 echo -e "\nSetting up user "${username}"..."
 echo "________________________________________________________________________"

@@ -22,22 +22,27 @@ clone_bootstrap:
 	$(GIT) -C bootstrap/tests/d2 clone -b dragonfly-ltsmaster https://github.com/dkgroot-ldc/dmd-testsuite.git
 	touch $@
 
-build_ldc: clone_bootstrap
+build_ldc_cmake: clone_bootstrap
 	[ -d bootstrap/build ] || mkdir bootstrap/build
 	cd bootstrap/build; cmake -G Ninja -DLLVM_CONFIG=/usr/local/bin/llvm-config38 ..
+	touch $@
+
+build_ldc_ninja: build_ldc_cmake
 	cd bootstrap/build; ninja -j$(NCPU)
 	touch $@
 
-druntime_unittest: build_ldc
+druntime_unittest: build_ldc_ninja
 	cd bootstrap/build; ninja -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
 
-phobos_unittest: build_ldc
+phobos_unittest: build_ldc_ninja
 	cd bootstrap/build; ninja -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
 
-run_tests: build_ldc
+run_tests: build_ldc_ninja
 	cd bootstrap/build; ctest -V -R --output-on-failure "llvm-ir-testsuite|ldc2-unittest|lit-tests"
 
-run_testsuite: build_ldc
+run_testsuite: build_ldc_ninja
 	cd bootstrap/build; ctest -j$(NCPU) --output-on-failure -E "dmd-testsuite|llvm-ir-testsuite"
 	
-build_bootstrap: build_ldc
+build_bootstrap: clone_bootstrap build_ldc_cmake build_ldc_ninja
+
+test_bootstrap: druntime_unittest phobos_unittest run_tests run_testsuite

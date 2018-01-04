@@ -22,7 +22,7 @@ echo "Waiting for DragonFly to finish booting..."
 sleep 50
 if [ ! `pidof qemu-system-x86_64` ]; then echo "qemu failed to start"; exit 1; fi
 ssh-keyscan -p10022 -H localhost >> ~/.ssh/known_hosts 2>/dev/null
-scp -P 10022 scripts/execute_return_exitcode.sh root@localhost:/root/
-scp -P 10022 scripts/bootstrap.mk root@localhost:/root/
-scp -P 10022 scripts/master.mk root@localhost:/root/
+scp -q -P 10022 scripts/execute_return_exitcode.sh root@localhost:/root/
+scp -q -P 10022 scripts/bootstrap.mk root@localhost:/root/
+scp -q -P 10022 scripts/master.mk root@localhost:/root/
 echo "DragonFly Started..."
