@@ -13,7 +13,7 @@ sudo qemu-system-x86_64 \
     -enable-kvm \
     -device virtio-scsi-pci,id=scsi1 -device scsi-hd,drive=drive0,bus=scsi1.0 -drive file=$SEMAPHORE_CACHE_DIR/image.img,if=none,format=qcow2,id=drive0 \
     -snapshot \
-    -m 3072 -device e1000,netdev=net1 \
+    -m 3584 -device e1000,netdev=net1 \
     -netdev user,id=net1,hostfwd=tcp::10022-:22 \
     -boot order=c,menu=off,splash-time=0 \
     -no-reboot -daemonize \
