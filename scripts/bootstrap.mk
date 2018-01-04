@@ -39,10 +39,8 @@ phobos_unittest: build_ldc_ninja
 
 run_tests: build_ldc_ninja
 	cd bootstrap/build; ctest -V -R --output-on-failure "llvm-ir-testsuite|ldc2-unittest|lit-tests"
-
-run_testsuite: build_ldc_ninja
 	cd bootstrap/build; ctest -j$(NCPU) --output-on-failure -E "dmd-testsuite|llvm-ir-testsuite"
 	
 build_bootstrap: clone_bootstrap build_ldc_cmake build_ldc_ninja
 
-test_bootstrap: druntime_unittest phobos_unittest run_tests run_testsuite
+test_bootstrap: druntime_unittest phobos_unittest run_tests
