@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Execute a command on a remote host via ssh
+# Use a helper script on the remote end, called execute_return_exitcode
+# Immediately return generated output
+# Handle ssh exit_code
+# Capture output in a log file, to retrieve the REMOTE_EXIT_CODE if any
+#
+# Created by: Diederik de Groot (2018)
+
+ssh root@localhost -p 10022  -o ConnectTimeout=5 "./execute_return_exitcode.sh '$@'" | tee output.log | grep -v SSH_REMOTE_EXIT_CODE=
+exit_code=$?
+if [ $exit_code != 0 ]; then
+    exit $exit_code
+fi
+res=`tail -n1 output.log`
+exit_code="${res##*SSH_REMOTE_EXIT_CODE=}"
+if [[ ! -n "$exit_code" ]]; then
+    exit_code=127
+fi
+exit $exit_code
