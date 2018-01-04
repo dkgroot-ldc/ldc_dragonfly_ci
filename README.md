@@ -1,4 +1,4 @@
-[![Build Status](https://semaphoreci.com/api/v1/dkgroot/dmd_dragonfly_ci/branches/master/badge.svg)](https://semaphoreci.com/dkgroot/dmd_dragonfly_ci)
+[![Build Status](https://semaphoreci.com/api/v1/dkgroot/ldc_dragonfly_ci/branches/master/badge.svg)](https://semaphoreci.com/dkgroot/ldc_dragonfly_ci)
 
 # CI for D-lang dmd on DragonFly
 
