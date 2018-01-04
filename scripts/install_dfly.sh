@@ -215,14 +215,12 @@ chroot /mnt pkg install -y gmake bash gettext llvm38 clang38 cmake ninja
 
 echo -e "\nSetting up user "${username}"..."
 echo "________________________________________________________________________"
-ln -s /mnt/usr/local/bin/bash /usr/local/bin/bash
-mkdir /mnt/home/${usename}
+mkdir /mnt/home/${username}
 pw -V /mnt/etc useradd -n ${username} -d /home/${username} -G wheel -s /usr/local/bin/bash -c "${fullname}" -m -w none
 pw -V /mnt/etc usermod -n root -s /usr/local/bin/bash
 chown 1001:1001 /mnt/home/${username};
-
-pw -V /mnt/etc usershow -n root
-pw -V /mnt/etc usershow -n dmd
+#pw -V /mnt/etc usershow -n root
+#pw -V /mnt/etc usershow -n dmd
 
 echo -e "\nSetting up bash shell..."
 echo "________________________________________________________________________"
