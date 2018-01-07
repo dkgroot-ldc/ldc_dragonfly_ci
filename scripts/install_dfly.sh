@@ -6,7 +6,7 @@
 #
 # Created by: Diederik de Groot (2018)
 #set -uexo pipefail
-set -uxo pipefail
+set -ux
 
 disk=da0
 rootdev=da0s1a
