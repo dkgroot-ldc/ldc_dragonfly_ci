@@ -191,12 +191,6 @@ nfs_client_enable="YES"
 rpc_umntall_enable="NO"
 EOF
 
-echo -e "\nSetting up sshd..."
-echo "________________________________________________________________________"
-sed -i -e 's/PasswordAuthentication.*/PasswordAuthentication yes/' /mnt/etc/ssh/sshd_config;
-echo -e "\nPermitRootLogin yes" >> /mnt/etc/ssh/sshd_config
-echo -e "\nPermitEmptyPasswords yes" >> /mnt/etc/ssh/sshd_config
-
 echo -e "\nSetting up pkg..."
 echo "________________________________________________________________________"
 mkdir -p /mnt/usr/local/etc/pkg/repos
@@ -204,14 +198,17 @@ curl -s https://raw.githubusercontent.com/dkgroot-ldc/ldc_dragonfly_ci/master/sc
 cp /etc/resolv.conf /mnt/etc;
 chroot /mnt pkg upgrade -y
 
-echo -e "\nSetting up sudo..."
-echo "________________________________________________________________________"
-chroot /mnt pkg install -y sudo
-sed -i -e 's/.*%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/usr/local/etc/sudoers;
-
 echo -e "\nInstalling packages..."
 echo "________________________________________________________________________"
 chroot /mnt pkg install -y gmake bash gettext llvm38 clang38 cmake ninja libconfig
+
+echo -e "\nSetting up sshd..."
+echo "________________________________________________________________________"
+sed -i -e 's/PasswordAuthentication.*/PasswordAuthentication yes/' /mnt/etc/ssh/sshd_config;
+sed -i -e 's/PermitRootLogin.*/PermitRootLogin yes/' /mnt/etc/ssh/sshd_config;
+sed -i -e 's/PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /mnt/etc/ssh/sshd_config;
+echo -e "\nPermitRootLogin yes" >> /mnt/etc/ssh/sshd_config
+echo -e "\nPermitEmptyPasswords yes" >> /mnt/etc/ssh/sshd_config
 
 echo -e "\nSetting up user "${username}"..."
 echo "________________________________________________________________________"
@@ -221,6 +218,11 @@ pw -V /mnt/etc usermod -n root -s /usr/local/bin/bash
 chown 1001:1001 /mnt/home/${username};
 #pw -V /mnt/etc usershow -n root
 #pw -V /mnt/etc usershow -n dmd
+
+echo -e "\nSetting up sudo..."
+echo "________________________________________________________________________"
+chroot /mnt pkg install -y sudo
+sed -i -e 's/.*%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/usr/local/etc/sudoers;
 
 echo -e "\nSetting up bash shell..."
 echo "________________________________________________________________________"
