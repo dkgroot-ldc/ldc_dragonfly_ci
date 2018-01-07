@@ -5,7 +5,7 @@
 # the installation of the os is controlled via a python-pexpect script
 #
 # Created by: Diederik de Groot (2018)
-set -uexo pipefail
+#set -uexo pipefail
 
 if [ -d $SEMAPHORE_CACHE_DIR ]; then
       pushd $SEMAPHORE_CACHE_DIR
