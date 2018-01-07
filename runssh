@@ -9,7 +9,7 @@
 # Created by: Diederik de Groot (2018)
 exit_code=0
 ssh root@localhost -p 10022  -o ConnectTimeout=5 "./execute_return_exitcode.sh '$@'" | tee output.log | grep -v SSH_REMOTE_EXIT_CODE= || exit_code=$?
-if [ $exit_code != 0 ]; then
+if [[ $exit_code != 0 ]]; then
     exit $exit_code
 fi
 res=`tail -n1 output.log`
@@ -17,4 +17,6 @@ exit_code="${res##*SSH_REMOTE_EXIT_CODE=}"
 if [[ ! -n "$exit_code" ]]; then
     exit_code=127
 fi
-exit $exit_code
+if [[ ! "$exit_code" ]]; then
+	exit $exit_code
+fi
