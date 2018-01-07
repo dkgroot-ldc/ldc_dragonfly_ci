@@ -30,7 +30,7 @@ echo "________________________________________________________________________"
 dd if=/dev/zero of=/dev/${disk} bs=32k count=16
 echo -e "\nPartitioning Disk..."
 echo "________________________________________________________________________"
-fdisk -IB ${disk}
+#fdisk -IB ${disk}
 
 # If you didn't zero the disk as above, but have a spare slice
 # whose partition type you want to change to DragonFly, use fdisk(8).
@@ -54,7 +54,8 @@ boot0cfg -v ${disk}
 # dd if=/dev/zero of=/dev/da0s1 bs=32k count=16
 echo -e "\nCreating disklabel..."
 echo "________________________________________________________________________"
-disklabel64 -r -w ${disk}s1 auto
+#disklabel64 -r -w ${disk}s1 auto
+disklabel64 -w ${disk}s1 auto
 disklabel64 -B ${disk}s1
 
 # Edit the label.  Create various standard partitions.  The typical
@@ -218,9 +219,11 @@ sed -i -e 's/.*%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /
 
 echo -e "\nSetting up user "${username}"..."
 echo "________________________________________________________________________"
-mkdir /mnt/home/${username}
-pw -V /mnt/etc useradd -n ${username} -d /home/${username} -G wheel -s /usr/local/bin/bash -c "${fullname}" -m -w none
-pw -V /mnt/etc usermod -n root -s /usr/local/bin/bash
+#mkdir /mnt/home/${username}
+#pw -V /mnt/etc useradd -n ${username} -d /home/${username} -G wheel -s /usr/local/bin/bash -c "${fullname}" -m -w none
+#pw -V /mnt/etc usermod -n root -s /usr/local/bin/bash
+chroot /mnt pw useradd -n ${username} -d /home/${username} -G wheel -s /usr/local/bin/bash -c "${fullname}" -m -w none
+chroot /mnt pw usermod -n root -s /usr/local/bin/bash
 chown 1001:1001 /mnt/home/${username};
 #pw -V /mnt/etc usershow -n root
 #pw -V /mnt/etc usershow -n dmd
