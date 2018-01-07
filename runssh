@@ -8,15 +8,18 @@
 #
 # Created by: Diederik de Groot (2018)
 exit_code=0
-ssh root@localhost -p 10022  -o ConnectTimeout=5 "./execute_return_exitcode.sh '$@'" | tee output.log | grep -v SSH_REMOTE_EXIT_CODE= || exit_code=$?
+ssh root@localhost -p 10022  -o ConnectTimeout=5 "./execute_return_exitcode.sh $@" | tee output.log | grep -v SSH_REMOTE_EXIT_CODE= || exit_code=$?
 if [[ $exit_code != 0 ]]; then
     exit $exit_code
 fi
-res=`tail -n1 output.log`
-exit_code="${res##*SSH_REMOTE_EXIT_CODE=}"
-if [[ ! -n "$exit_code" ]]; then
-    exit_code=127
-fi
-if [[ ! "$exit_code" ]]; then
-	exit $exit_code
+res="`tail -n1 output.log | grep 'SSH_REMOTE_EXIT_CODE='`"
+if [ -n $res ]; then
+	exit_text_code="${res##*SSH_REMOTE_EXIT_CODE=}"
+	if [[ -n "$exit_text_code" ]]; then
+	    exit_code=$exit_text_code
+	else
+	    exit_code=127
+	fi
+	echo "Returning:$exit_code"
+	exit $((0 + exit_code))
 fi
