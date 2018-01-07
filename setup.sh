@@ -6,6 +6,7 @@
 # Push required scripts to DragonFly VM
 #
 # Created by: Diederik de Groot (2018)
+set -uexo pipefail
 
 echo "Starting DragonFly..."
 sudo qemu-system-x86_64 \
