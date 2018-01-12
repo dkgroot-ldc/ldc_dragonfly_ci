@@ -17,8 +17,6 @@ if [ -n $res ]; then
 	exit_text_code="${res##*SSH_REMOTE_EXIT_CODE=}"
 	if [[ -n "$exit_text_code" ]]; then
 	    exit_code=$exit_text_code
-	else
-	    exit_code=127
 	fi
 	echo "Returning:$exit_code"
 	exit $((0 + exit_code))
