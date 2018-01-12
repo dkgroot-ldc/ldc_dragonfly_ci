@@ -210,7 +210,7 @@ chroot /mnt pkg upgrade -y
 
 echo -e "\nInstalling packages..."
 echo "________________________________________________________________________"
-chroot /mnt pkg install -y gmake bash gettext llvm38 clang38 cmake ninja libconfig sudo
+chroot /mnt pkg install -y gcc6 gmake bash gettext llvm38 clang38 cmake ninja libconfig sudo
 
 echo -e "\nSetting up sudo..."
 echo "________________________________________________________________________"
