@@ -14,7 +14,8 @@ INSTALL_DIR:=$(shell pwd)/bootstrap/install
 all: test_ldc
 
 clone_bootstrap:
-	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git bootstrap
+	#$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git bootstrap
+	$(GIT) clone -b dragonfly-ltsmaster https://github.com/dkgroot-ldc/ldc.git bootstrap
 	$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/dkgroot-ldc/druntime.git
 	cd bootstrap/runtime/druntime; $(GIT) checkout -b unittest
 	#cd bootstrap/runtime/druntime; $(GIT) pull origin dragonfly-ltsmaster ldc-ltsmaster_dragonflybsd ldc-ltsmaster_posix  --commit -q --squash;
