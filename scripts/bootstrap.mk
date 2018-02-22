@@ -21,8 +21,8 @@ clone_bootstrap:
 	#cd bootstrap/runtime/druntime; $(GIT) pull origin dragonfly-ltsmaster ldc-ltsmaster_dragonflybsd ldc-ltsmaster_posix  --commit -q --squash;
 	cd bootstrap/runtime/druntime; $(GIT) pull origin dragonfly-ltsmaster ldc-ltsmaster_posix  --commit -q --squash;
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/phobos.git
-	$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/dkgroot-ldc/phobos.git
-	$(GIT) -C bootstrap/tests/d2 clone -b fix_math https://github.com/dkgroot-ldc/dmd-testsuite.git
+	$(GIT) -C bootstrap/runtime clone -b fix_math https://github.com/dkgroot-ldc/phobos.git
+	$(GIT) -C bootstrap/tests/d2 clone -b dragonfly-ltsmaster https://github.com/dkgroot-ldc/dmd-testsuite.git
 	touch $@
 
 build_ldc_cmake: clone_bootstrap
