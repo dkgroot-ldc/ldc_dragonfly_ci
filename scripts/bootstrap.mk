@@ -15,6 +15,8 @@ all: test_ldc
 
 clone_bootstrap:
 	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git bootstrap
+	$(GIT) -C bootstrap fetch origin pull/2593/head:fix_port_dfly
+	$(GIT) -C bootstrap checkout fix_port_dfly
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/druntime.git
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/dkgroot-ldc/druntime.git
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/phobos.git
