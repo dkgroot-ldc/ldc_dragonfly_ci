@@ -15,15 +15,17 @@ all: test_ldc
 
 clone_bootstrap:
 	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git bootstrap
-	$(GIT) -C bootstrap fetch origin pull/2593/head:fix_port_dfly
-	$(GIT) -C bootstrap checkout fix_port_dfly
+	cd bootstrap ; $(GIT) submodule update --init --recursive
+
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/druntime.git
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/dkgroot-ldc/druntime.git
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/phobos.git
 	#$(GIT) -C bootstrap/tests/d2 clone -b dragonfly-ltsmaster https://github.com/dkgroot-ldc/dmd-testsuite.git
 	#cd bootstrap/runtime/druntime; $(GIT) checkout -b unittest
 	#cd bootstrap/runtime/druntime; $(GIT) pull origin dragonfly-ltsmaster ldc-ltsmaster_dragonflybsd ldc-ltsmaster_posix  --commit -q --squash;
-	cd bootstrap ; $(GIT) submodule update --init --recursive
+
+	$(GIT) -C bootstrap fetch origin pull/2593/head:fix_port_dfly
+	$(GIT) -C bootstrap checkout fix_port_dfly
 	touch $@
 
 build_ldc_cmake: clone_bootstrap
