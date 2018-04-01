@@ -18,8 +18,7 @@ cmd += "-no-reboot "
 cmd += "-nographic "
 cmd += "-serial mon:stdio"
 print("Starting: ", cmd)
-df = pexpect.spawn(cmd, encoding='utf-8', timeout=1200)
-df.logfile = sys.stdout
+df = pexpect.spawn(cmd, encoding='utf-8', timeout=1200, logfile=sys.stdout)
 df.expect("Escape to loader prompt")
 df.expect("Booting in 8 seconds")
 #print("\nSending ESC 1b")
@@ -30,13 +29,15 @@ df.sendline("set kernel_options=-Ch")
 df.expect("OK")
 df.sendline("set console=comconsole")
 df.expect("OK")
+df.logfile = None	# Suppress twirl ("|/\/") logging
 df.sendline("boot")
 print("\n\nBooting DragonFlyBSD (Stand-By)...")
+df.expect("The DragonFly Project.")
+df.logfile = sys.stdout # Reinstate logging
 df.expect("login:")
 df.sendline("root")
 time.sleep(1)
 df.send('\r')
-#df.expect("#")
 df.sendline("sh")
 df.expect("#")
 df.sendline("export PS1='>>> '")
@@ -55,7 +56,6 @@ df.expect(">>> ")
 df.sendline("./install_dfly.sh")
 df.expect(">>> ")
 df.sendline("sync")
-#df.expect(">>> ")
 if df.isalive():
     df.sendline('halt')
     df.expect("The operating system has halted.")
