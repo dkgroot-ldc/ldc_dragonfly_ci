@@ -205,10 +205,8 @@ echo -e "\nSetting up pkg..."
 echo "________________________________________________________________________"
 mkdir -p /mnt/usr/local/etc/pkg/repos
 curl -s https://raw.githubusercontent.com/dkgroot-ldc/ldc_dragonfly_ci/master/scripts/df-latest.conf -o /mnt/usr/local/etc/pkg/repos/df-latest.conf
-#
 # Temporarily fixup ABI Setting
-#
-echo 'ABI="dragonfly:5.2:x86:64";' >> /mnt/usr/local/etc/pkg.conf
+#echo 'ABI="dragonfly:5.4:x86:64";' >> /mnt/usr/local/etc/pkg.conf
 cp /etc/resolv.conf /mnt/etc;
 chroot /mnt pkg upgrade -y
 
