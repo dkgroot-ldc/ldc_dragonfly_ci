@@ -7,6 +7,16 @@
 import sys
 import pexpect
 import time
+class LogAdapter(object):
+    def __init__(self, logger):
+        self.logger = logger
+    def write(self, data):
+        data = data.replace('\r\n','\n').replace('\r','\n').replace('\n\n', '\n');
+        if data:  # only non-blank
+           self.logger.write(data)
+    def flush(self):
+        pass 
+        
 cmd = "qemu-system-x86_64 "
 cmd += "-smp 4,sockets=1,cores=4,threads=2,maxcpus=4 "
 cmd += "-enable-kvm "
@@ -18,11 +28,11 @@ cmd += "-no-reboot "
 cmd += "-nographic "
 cmd += "-serial mon:stdio"
 print("Starting: ", cmd)
-df = pexpect.spawn(cmd, encoding='utf-8', timeout=1200, logfile=sys.stdout)
+logger=LogAdapter(sys.stdout);
+df = pexpect.spawn(cmd, encoding='utf-8', timeout=1200, logfile=logger)
 df.expect("Escape to loader prompt")
 df.expect("Booting in 8 seconds")
-#print("\nSending ESC 1b")
-df.send("\x1b")	# send the esc key
+df.send("\x1b")		# send the esc key
 print("\nSent ESC")
 df.expect("OK")
 df.sendline("set kernel_options=-Ch")
@@ -33,7 +43,7 @@ df.logfile = None	# Suppress twirl ("|/\/") logging
 df.sendline("boot")
 print("\n\nBooting DragonFlyBSD (Stand-By)...")
 df.expect("The DragonFly Project.")
-df.logfile = sys.stdout # Reinstate logging
+df.logfile = logger	# Reinstate logging
 df.expect("login:")
 df.sendline("root")
 time.sleep(1)
