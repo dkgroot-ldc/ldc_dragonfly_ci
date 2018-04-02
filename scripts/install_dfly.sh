@@ -44,8 +44,8 @@ fdisk -IB ${disk} >/dev/null 2>/dev/null
 #
 echo -e "\nConfigure boot (timeout=1)..."
 echo "________________________________________________________________________"
-boot0cfg -t 1 -B ${disk}
-boot0cfg -v ${disk}
+boot0cfg -t 1 -B ${disk} 2>/dev/null
+boot0cfg -v ${disk} 2>/dev/null
 
 # This creates an initial label on the chosen slice of the HD.  If
 # you have problems booting you could try wiping the first 32 blocks
@@ -55,8 +55,8 @@ boot0cfg -v ${disk}
 # dd if=/dev/zero of=/dev/da0s1 bs=32k count=16
 echo -e "\nCreating disklabel..."
 echo "________________________________________________________________________"
-disklabel64 -w ${disk}s1 auto
-disklabel64 -B ${disk}s1
+disklabel64 -w ${disk}s1 auto 2>/dev/null
+disklabel64 -B ${disk}s1 2>/dev/null
 
 # Edit the label.  Create various standard partitions.  The typical
 # configuration is:
@@ -99,7 +99,6 @@ swapon /dev/${swapdev}
 #
 # UFS:
 echo -e "\nMounting disk on /mnt..."
-echo "________________________________________________________________________"
 mount /dev/${rootdev} /mnt
 
 # UFS & HAMMER:
@@ -111,17 +110,15 @@ mount /dev/${rootdev} /mnt
 # CD itself, and /etc.hdd contains those for booting off a
 # hard disk.  So it's the latter that you want to copy to /mnt/etc.
 #
-echo -e "\nCopying root directory to /mnt... (standby this takes a while)"
+echo -e "\nCopying filsystem (standby this takes a while):"
 echo "________________________________________________________________________"
+echo -e "\nCopying root directory to /mnt:"
 cpdup -x -v / /mnt  | while read line; do COUNT=$(( COUNT+1 ));if test $COUNT -eq 100 ; then echo -n .; COUNT=0;fi;done
-echo -e "\nCopying var directory to /mnt/var..."
-echo "________________________________________________________________________"
+echo -e "\nCopying var directory to /mnt/var:"
 cpdup -x -v /var /mnt/var  | while read line; do COUNT=$(( COUNT+1 ));if test $COUNT -eq 100 ; then echo -n .; COUNT=0;fi;done
-echo -e "\nCopying etc directory to /mnt/etc..."
-echo "________________________________________________________________________"
+echo -e "\nCopying etc directory to /mnt/etc:"
 cpdup -x -v /etc.hdd /mnt/etc  | while read line; do COUNT=$(( COUNT+1 ));if test $COUNT -eq 100 ; then echo -n .; COUNT=0;fi;done
-echo -e "\nCopying usr directory to /mnt/usr..."
-echo "________________________________________________________________________"
+echo -e "\nCopying usr directory to /mnt/usr:"
 cpdup -x -v /usr /mnt/usr  | while read line; do COUNT=$(( COUNT+1 ));if test $COUNT -eq 100 ; then echo -n .; COUNT=0;fi;done
 
 chflags -R nohistory /mnt/tmp
@@ -132,8 +129,9 @@ chflags -R nohistory /mnt/usr/obj
 # Cleanup.  Also, with /tmp a partition it is usually reasonable
 # to make /var/tmp a softlink to /tmp.
 #
-echo -e "\nCreating /tmp directory..."
+echo -e "\nSetting up system:"
 echo "________________________________________________________________________"
+echo -e "\nCreating /tmp directory..."
 chmod 1777 /mnt/tmp
 rm -rf /mnt/var/tmp
 ln -s /tmp /mnt/var/tmp
@@ -143,7 +141,6 @@ ln -s /tmp /mnt/var/tmp
 # which you can rename to /mnt/etc/fstab.
 #
 echo -e "\nCreating /etc/fstab file..."
-echo "________________________________________________________________________"
 cat <<EOF > /mnt/etc/fstab
 /dev/${rootdev}		/               ufs     rw              1       1
 proc                    /proc           procfs  rw              0       0
@@ -157,7 +154,6 @@ EOF
 # good idea).
 #
 echo -e "\nBacking up disklabel..."
-echo "________________________________________________________________________"
 disklabel da0s1 > /mnt/etc/disklabel.da0s1
 
 # Remove or edit /mnt/boot/loader.conf so the kernel does not try
@@ -165,13 +161,11 @@ disklabel da0s1 > /mnt/etc/disklabel.da0s1
 # cruft that was sitting on the CD that you don't need on the HD.
 #
 echo -e "\nCleaning up root fs..."
-echo "________________________________________________________________________"
 rm /mnt/boot/loader.conf
 rm /mnt/boot.catalog
 rm -R /mnt/README* /mnt/autorun* /mnt/index.html /mnt/dflybsd.ico /mnt/etc.hdd;
 
 echo -e "\nSetting up boot loader..."
-echo "________________________________________________________________________"
 cat <<EOF > /mnt/boot/loader.conf
 kernel_options="-Ch"
 console="comconsole"
@@ -181,7 +175,6 @@ vfs.root.mountfrom="ufs:${rootdev}"
 EOF
 
 echo -e "\nSetting up rc.conf..."
-echo "________________________________________________________________________"
 ifc=$(route -n get default | fgrep interface | awk '{ print $2; }')
 cat > /mnt/etc/rc.conf << EOF
 ifconfig_${ifc}="DHCP"
@@ -195,14 +188,13 @@ rpc_umntall_enable="NO"
 EOF
 
 echo -e "\nSetting up sshd..."
-echo "________________________________________________________________________"
 sed -i -e 's/PasswordAuthentication.*/PasswordAuthentication yes/' /mnt/etc/ssh/sshd_config;
 sed -i -e 's/PermitRootLogin.*/PermitRootLogin yes/' /mnt/etc/ssh/sshd_config;
 sed -i -e 's/PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /mnt/etc/ssh/sshd_config;
 echo -e "\nPermitRootLogin yes" >> /mnt/etc/ssh/sshd_config
 echo -e "\nPermitEmptyPasswords yes" >> /mnt/etc/ssh/sshd_config
 
-echo -e "\nSetting up pkg..."
+echo -e "\nSetting up pkg:"
 echo "________________________________________________________________________"
 mkdir -p /mnt/usr/local/etc/pkg/repos
 curl -s https://raw.githubusercontent.com/dkgroot-ldc/ldc_dragonfly_ci/master/scripts/df-latest.conf -o /mnt/usr/local/etc/pkg/repos/df-latest.conf
@@ -215,18 +207,17 @@ echo -e "\nInstalling packages..."
 echo "________________________________________________________________________"
 chroot /mnt pkg install -y gcc6 gmake bash gettext llvm38 clang38 cmake ninja libconfig sudo
 
-echo -e "\nSetting up sudo..."
+echo -e "\nFinishing system:"
 echo "________________________________________________________________________"
+echo -e "\nSetting up sudo..."
 sed -i -e 's/.*%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/usr/local/etc/sudoers;
 
 echo -e "\nSetting up user "${username}"..."
-echo "________________________________________________________________________"
 chroot /mnt pw useradd -n ${username} -d /home/${username} -G wheel -s /usr/local/bin/bash -c "${fullname}" -m -w none
 chroot /mnt pw usermod -n root -s /usr/local/bin/bash
 chown 1001:1001 /mnt/home/${username};
 
 echo -e "\nSetting up bash shell..."
-echo "________________________________________________________________________"
 curl -s https://raw.githubusercontent.com/dkgroot-ldc/ldc_dragonfly_ci/master/scripts/inputrc -o /mnt/usr/local/etc/inputrc
 curl -s https://raw.githubusercontent.com/dkgroot-ldc/ldc_dragonfly_ci/master/scripts/bash.bashrc -o /mnt/usr/local/etc/bash.bashrc
 cp /mnt/usr/local/etc/bash.bashrc /mnt/root/.bashrc
@@ -236,8 +227,9 @@ cp /mnt/usr/local/etc/profile /mnt/root/.profile
 cp /mnt/usr/local/etc/profile /mnt/home/${username}/.profile
 chroot /mnt pkg clean -y
 
-echo -e "\nDragonFlyBSD installed... time to reboot."
+echo -e "\nFinished installing DragonFlyBSD:"
 echo "________________________________________________________________________"
+echo -e "\nRebooting..."
 #WARNING: Do not just hit reset; the kernel may not have written out
 #all the pending data to your HD.  Either unmount the HD partitions
 #or type halt or reboot.
