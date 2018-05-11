@@ -17,6 +17,7 @@ INSTALL_DIR:=$(shell pwd)/master
 clone_master:
 	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git master
 	cd master ; $(GIT) submodule update --init --recursive
+	python -m pip install lit
 	touch $@
 
 build_ldc_cmake_ninja: clone_master

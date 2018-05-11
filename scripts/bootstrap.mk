@@ -16,6 +16,7 @@ all: test_ldc
 clone_bootstrap:
 	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git bootstrap
 	cd bootstrap ; $(GIT) submodule update --init --recursive
+	python -m pip install lit
 
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/druntime.git
 	#cd bootstrap/runtime/druntime; $(GIT) checkout -b unittest
