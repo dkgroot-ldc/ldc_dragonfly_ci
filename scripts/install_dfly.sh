@@ -79,7 +79,7 @@ disklabel64 -B ${disk}s1 2>/dev/null
 disklabel64 ${disk}s1 > /tmp/label
 cat << EOF >> /tmp/label
   a:     *       0       4.2BSD
-  b:     1500m   *       swap
+  b:     4500m   *       swap
 EOF
 disklabel -R ${disk}s1 /tmp/label
 
