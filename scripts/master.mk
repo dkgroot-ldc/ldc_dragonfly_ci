@@ -33,28 +33,28 @@ build_ldc_cmake_make: clone_master
 	touch $@
 
 build_ldc_ninja: build_ldc_cmake_ninja
-	cd bootstrap/build; ninja -j$(NCPU)
+	cd master/build; ninja -j$(NCPU)
 	touch $@
 
 build_ldc_make: build_ldc_cmake_make
-	cd bootstrap/build; make -j$(NCPU)
+	cd master/build; make -j$(NCPU)
 	touch $@
 
 druntime_unittest_ninja: build_ldc_ninja
-	cd bootstrap/build; ninja -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
+	cd master/build; ninja -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
 
 phobos_unittest_ninja: build_ldc_ninja
-	cd bootstrap/build; ninja -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
+	cd master/build; ninja -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
 
 druntime_unittest_make: build_ldc_make
-	cd bootstrap/build; make -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
+	cd master/build; make -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
 
 phobos_unittest_make: build_ldc_make
-	cd bootstrap/build; make -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
+	cd master/build; make -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
 
 run_tests: 
-	cd bootstrap/build; ctest -V -R --output-on-failure "llvm-ir-testsuite|ldc2-unittest|lit-tests"
-	cd bootstrap/build; ctest -j$(NCPU) --output-on-failure -E "dmd-testsuite-debug|llvm-ir-testsuite-debug"
+	cd master/build; ctest -V -R --output-on-failure "llvm-ir-testsuite|ldc2-unittest|lit-tests"
+	cd master/build; ctest -j$(NCPU) --output-on-failure -E "dmd-testsuite-debug|llvm-ir-testsuite-debug"
 
 build_ninja: build_ldc_ninja
 build_make: build_ldc_make
