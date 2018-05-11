@@ -30,7 +30,7 @@ clone_bootstrap:
 
 build_ldc_cmake: clone_bootstrap
 	[ -d bootstrap/build ] || mkdir bootstrap/build
-	cd bootstrap/build; cmake -G Ninja -DLLVM_CONFIG=/usr/local/bin/llvm-config38 ..
+	cd bootstrap/build; cmake -G Ninja -DLLVM_CONFIG=/usr/local/bin/llvm-config38 -DBUILD_SHARED_LIB=ON ..
 	touch $@
 
 build_ldc_ninja: build_ldc_cmake
