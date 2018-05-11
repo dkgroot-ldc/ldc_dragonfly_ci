@@ -23,8 +23,8 @@ clone_bootstrap:
 	#$(GIT) -C bootstrap/runtime clone -b ldc-ltsmaster https://github.com/ldc-developers/phobos.git
 	#$(GIT) -C bootstrap/tests/d2 clone -b dragonfly-ltsmaster https://github.com/dkgroot-ldc/dmd-testsuite.git
 
-	$(GIT) -C bootstrap fetch origin pull/2593/head:fix_port_dfly
-	$(GIT) -C bootstrap checkout fix_port_dfly
+	#$(GIT) -C bootstrap fetch origin pull/2593/head:fix_port_dfly
+	#$(GIT) -C bootstrap checkout fix_port_dfly
 	touch $@
 
 build_ldc_cmake: clone_bootstrap
