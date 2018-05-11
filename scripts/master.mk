@@ -7,73 +7,55 @@ QUIET:=
 BUILD:=debug
 MODEL:=64
 NCPU:=4
-BOOTSTRAP_DMD:=$(shell pwd)/bootstrap/install/dragonflybsd/bin64/dmd
-INSTALL_DIR:=$(shell pwd)/master/install
+BOOTSTRAP_DMD:=$(shell pwd)/bootstrap/build/bin/ldmd2
+INSTALL_DIR:=$(shell pwd)/master
 
 .PHONY: all
 
-all: master_dmd.tar.bz2
+#all: master_dmd.tar.bz2
 
 clone_master:
-	[ -d master ] || mkdir master
-	$(GIT) -C master clone -b dragonflybsd-master https://github.com/${GITUSER}/dmd.git
-	$(GIT) -C master clone https://github.com/${GITUSER}/druntime.git
-	cd master/druntime; $(GIT) checkout -b unittest;
-	cd master/druntime; $(GIT) pull origin dragonflybsd-master dragonfly-core.sys.posix dragonfly-core.sys.dragonflybsd --commit -q --squash;
-	$(GIT) -C master clone -b dragonflybsd-master https://github.com/${GITUSER}/phobos.git
-	touch $@
-	
-build_dmd: clone_master
-	$(MAKE) -C master/dmd -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) HOST_CSS=g++ HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU) all
-	$(MAKE) -C master/dmd -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) HOST_CSS=g++ HOST_DMD=$(BOOTSTRAP_DMD) INSTALL_DIR=$(INSTALL_DIR) install
+	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git master
+	cd master ; $(GIT) submodule update --init --recursive
 	touch $@
 
-build_druntime: clone_master
-	$(MAKE) -C master/druntime -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) -j$(NCPU) 
-	$(MAKE) -C master/druntime -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) INSTALL_DIR=$(INSTALL_DIR) install
+build_ldc_cmake_ninja: clone_master
+	[ -d master/build ] || mkdir master/build
+	export DMD=$(BOOTSTRAP_DMD)
+	cd master/build; cmake -G Ninja -DLLVM_CONFIG=/usr/local/bin/llvm-config50 BUILD_SHARED_LIB=ON ..
 	touch $@
 
-build_phobos: clone_master
-	$(MAKE) -C master/phobos -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) -j$(NCPU)
-	$(MAKE) -C master/phobos -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) INSTALL_DIR=$(INSTALL_DIR) install
+build_ldc_cmake_make: clone_master
+	[ -d master/build ] || mkdir master/build
+	export DMD=$(BOOTSTRAP_DMD)
+	cd master/build; cmake -DLLVM_CONFIG=/usr/local/bin/llvm-config50 BUILD_SHARED_LIB=ON .. 
 	touch $@
 
-build_master: build_dmd build_druntime build_phobos
-
-test_druntime: build_druntime
-	sysctl kern.coredump=0; $(MAKE) -C master/druntime -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) -j$(NCPU) unittest
-
-test_phobos: build_phobos
-	#$(MAKE) -C master/phobos -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) -j$(NCPU) unittest
-	$(MAKE) -C master/phobos -f posix.mak BUILD=$(BUILD) MODEL=$(MODEL) QUIET=$(QUIET) unittest
-
-test_dmd: build_dmd
-	$(MAKE) -C master/dmd/src -f posix.mak BUILD=release MODEL=$(MODEL) QUIET=$(QUIET) HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU) build-examples
-	$(MAKE) -C master/dmd/src -f posix.mak BUILD=release MODEL=$(MODEL) QUIET=$(QUIET) HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU) unittest
-
-run_dmd_tests:
-	$(MAKE) -C master/dmd/test -f Makefile BUILD=release MODEL=$(MODEL) QUIET=$(QUIET) HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU)
-
-run_dmd_runnable_tests:
-	$(MAKE) -C master/dmd/test -f Makefile BUILD=release MODEL=$(MODEL) QUIET=$(QUIET) HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU) start_runnable_tests
-
-run_dmd_compilable_tests:
-	$(MAKE) -C master/dmd/test -f Makefile BUILD=release MODEL=$(MODEL) QUIET=$(QUIET) HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU) start_compilable_tests
-
-run_dmd_fail_compilation_tests:
-	$(MAKE) -C master/dmd/test -f Makefile BUILD=release MODEL=$(MODEL) QUIET=$(QUIET) HOST_DMD=$(BOOTSTRAP_DMD) -j$(NCPU) start_fail_compilation_tests
-
-test_master: test_druntime test_phobos test_dmd run_dmd_tests
-
-master_dmd.tar.bz2: build_master
-	tar cfj master_dmd.tar.bz2 master/install
-	cd master; rm -rf dmd druntime phobos
-
-master_restore: master_dmd.tar.bz2
-	tar xfj master_dmd.tar.bz2
+build_ldc_ninja: build_ldc_cmake_ninja
+	cd bootstrap/build; ninja -j$(NCPU)
 	touch $@
 
-master: master_dmd.tar.bz2
-	[ -d master/install ] || $(MAKE) -f $(MAKEFILE) master_restore;
+build_ldc_make: build_ldc_cmake_make
+	cd bootstrap/build; make -j$(NCPU)
+	touch $@
 
-	
+druntime_unittest_ninja: build_ldc_ninja
+	cd bootstrap/build; ninja -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
+
+phobos_unittest_ninja: build_ldc_ninja
+	cd bootstrap/build; ninja -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
+
+druntime_unittest_make: build_ldc_make
+	cd bootstrap/build; make -j$(NCPU) druntime-ldc-unittest-debug druntime-ldc-unittest
+
+phobos_unittest_make: build_ldc_make
+	cd bootstrap/build; make -j$(NCPU) phobos2-ldc-unittest-debug phobos2-ldc-unittest
+
+run_tests: 
+	cd bootstrap/build; ctest -V -R --output-on-failure "llvm-ir-testsuite|ldc2-unittest|lit-tests"
+	cd bootstrap/build; ctest -j$(NCPU) --output-on-failure -E "dmd-testsuite-debug|llvm-ir-testsuite-debug"
+
+build_ninja: build_ldc_ninja
+build_make: build_ldc_make
+test_ninja: druntime_unittest_ninja phobos_unittest_ninja run_tests
+test_make: druntime_unittest_make phobos_unittest_make run_tests
