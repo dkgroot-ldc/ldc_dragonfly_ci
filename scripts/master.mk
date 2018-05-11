@@ -15,7 +15,7 @@ INSTALL_DIR:=$(shell pwd)/master
 #all: master_dmd.tar.bz2
 
 clone_master:
-	$(GIT) clone -b ltsmaster https://github.com/ldc-developers/ldc.git master
+	$(GIT) clone https://github.com/ldc-developers/ldc.git master
 	cd master ; $(GIT) submodule update --init --recursive
 	python -m pip install lit
 	touch $@
