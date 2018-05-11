@@ -205,7 +205,7 @@ chroot /mnt pkg upgrade -y
 
 echo -e "\nInstalling packages..."
 echo "________________________________________________________________________"
-chroot /mnt pkg install -y gcc6 gmake bash gettext llvm38 llvm50 cmake ninja libconfig sudo python python27
+chroot /mnt pkg install -y gcc6 gmake bash gettext llvm38 llvm50 cmake ninja libconfig sudo python python27 py27-pip
 
 echo -e "\nFinishing system:"
 echo "________________________________________________________________________"
