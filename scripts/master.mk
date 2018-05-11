@@ -22,13 +22,13 @@ clone_master:
 
 build_ldc_cmake_ninja: clone_master
 	[ -d master/build ] || mkdir master/build
-	cd master/build; cmake -G Ninja -DLLVM_CONFIG=/usr/local/bin/llvm-config50 -DBUILD_SHARED_LIB=ON -DBUILD_SHARED_LIBS=ON -DD_COMPILER=$(BOOTSTRAP_DMD) ..
+	cd master/build; cmake -G Ninja -DLLVM_CONFIG=/usr/local/bin/llvm-config50 -DBUILD_SHARED_LIBS=OFF -DD_COMPILER=$(BOOTSTRAP_DMD) ..
 	touch $@
 
 build_ldc_cmake_make: clone_master
 	[ -d master/build ] || mkdir master/build
 	export DMD=$(BOOTSTRAP_DMD)
-	cd master/build; cmake -DLLVM_CONFIG=/usr/local/bin/llvm-config50 -DBUILD_SHARED_LIB=ON -DBUILD_SHARED_LIBS=ON -DD_COMPILER=$(BOOTSTRAP_DMD) .. 
+	cd master/build; cmake -DLLVM_CONFIG=/usr/local/bin/llvm-config50 -DBUILD_SHARED_LIBS=OFF -DD_COMPILER=$(BOOTSTRAP_DMD) .. 
 	touch $@
 
 build_ldc_ninja: build_ldc_cmake_ninja
